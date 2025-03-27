@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>엑셀 데이터 랜덤 출력기</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <h2>📂 엑셀 파일 업로드 후 랜덤 출력</h2>
+  <input type="file" id="fileInput" accept=".xlsx" />
+  <ul id="outputList"></ul>
+
+  <script>
+    // 배열 섞기 함수
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        const flatData = jsonData.flat().filter(cell => typeof cell === 'string' && cell.trim() !== '');
+        const shuffled = shuffle(flatData);
+
+        const outputList = document.getElementById('outputList');
+        outputList.innerHTML = '';
+        shuffled.forEach((item, index) => {
+          const li = document.createElement('li');
+          li.textContent = `${index + 1}. ${item}`;
+          outputList.appendChild(li);
+        });
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+</html>
