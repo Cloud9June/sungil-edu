@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>숫자 추측 게임</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 30px;
+      background: #f0f0f0;
+    }
+    #game-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    input[type="number"] {
+      padding: 8px;
+      width: 100px;
+      font-size: 16px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    #score, #tries {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h2>🎮 숫자 추측 게임</h2>
+    <p>1부터 50 사이의 숫자를 맞춰보세요!</p>
+    
+    <input type="number" id="guessInput" min="1" max="50" />
+    <br />
+    <button onclick="checkGuess()">제출</button>
+    <button onclick="restartGame()">다시 시작</button>
+    
+    <p id="message"></p>
+    <p id="tries">남은 시도: 5</p>
+    <p id="score">점수: 0</p>
+  </div>
+
+  <script>
+    let answer = Math.floor(Math.random() * 50) + 1;
+    let triesLeft = 5;
+    let score = 0;
+    let gameOver = false;
+
+    function checkGuess() {
+      if (gameOver) return;
+
+      const guessInput = document.getElementById("guessInput");
+      const guess = Number(guessInput.value);
+      const message = document.getElementById("message");
+
+      if (guess < 1 || guess > 50 || isNaN(guess)) {
+        message.textContent = "⚠️ 1~50 사이의 숫자를 입력하세요.";
+        return;
+      }
+
+      triesLeft--;
+      document.getElementById("tries").textContent = `남은 시도: ${triesLeft}`;
+
+      if (guess === answer) {
+        score = triesLeft * 20;
+        message.textContent = `🎉 정답입니다!`;
+        document.getElementById("score").textContent = `점수: ${score}`;
+        gameOver = true;
+      } else if (guess < answer) {
+        message.textContent = "⬆️ Up!";
+      } else {
+        message.textContent = "⬇️ Down!";
+      }
+
+      if (triesLeft === 0 && !gameOver) {
+        message.textContent = `❌ 실패! 정답은 ${answer}였습니다.`;
+        gameOver = true;
+      }
+
+      guessInput.value = "";
+      guessInput.focus();
+    }
+
+    function restartGame() {
+      answer = Math.floor(Math.random() * 50) + 1;
+      triesLeft = 5;
+      score = 0;
+      gameOver = false;
+
+      document.getElementById("message").textContent = "";
+      document.getElementById("score").textContent = "점수: 0";
+      document.getElementById("tries").textContent = "남은 시도: 5";
+      document.getElementById("guessInput").value = "";
+      document.getElementById("guessInput").focus();
+    }
+  </script>
+</body>
+</html>
