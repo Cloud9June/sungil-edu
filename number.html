@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>숫자 추측 게임</title>
+  <title>숫자 추측 게임 with 랭킹</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -15,13 +15,14 @@
       padding: 20px;
       border-radius: 12px;
       max-width: 400px;
-      margin: 0 auto;
+      margin: 0 auto 20px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    input[type="number"] {
+    input[type="number"], input[type="text"] {
       padding: 8px;
-      width: 100px;
+      width: 200px;
       font-size: 16px;
+      margin-bottom: 5px;
     }
     button {
       padding: 8px 16px;
@@ -33,8 +34,17 @@
       margin-top: 15px;
       font-weight: bold;
     }
-    #score, #tries {
-      margin-top: 10px;
+    #scoreboard {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    ol {
+      text-align: left;
+      padding-left: 20px;
     }
   </style>
 </head>
@@ -42,29 +52,42 @@
   <div id="game-container">
     <h2>🎮 숫자 추측 게임</h2>
     <p>1부터 50 사이의 숫자를 맞춰보세요!</p>
-    
-    <input type="number" id="guessInput" min="1" max="50" />
+
+    <input type="text" id="playerName" placeholder="이름 입력" />
+    <br />
+    <input type="number" id="guessInput" min="1" max="50" placeholder="숫자 입력" />
     <br />
     <button onclick="checkGuess()">제출</button>
     <button onclick="restartGame()">다시 시작</button>
-    
+
     <p id="message"></p>
-    <p id="tries">남은 시도: 5</p>
+    <p id="tries">남은 시도: 7</p>
     <p id="score">점수: 0</p>
+  </div>
+
+  <div id="scoreboard">
+    <h3>🏆 TOP 10 점수</h3>
+    <ol id="rankingList"></ol>
   </div>
 
   <script>
     let answer = Math.floor(Math.random() * 50) + 1;
-    let triesLeft = 5;
+    let triesLeft = 7;
     let score = 0;
     let gameOver = false;
 
     function checkGuess() {
       if (gameOver) return;
 
+      const name = document.getElementById("playerName").value.trim();
       const guessInput = document.getElementById("guessInput");
       const guess = Number(guessInput.value);
       const message = document.getElementById("message");
+
+      if (!name) {
+        alert("이름을 입력해주세요!");
+        return;
+      }
 
       if (guess < 1 || guess > 50 || isNaN(guess)) {
         message.textContent = "⚠️ 1~50 사이의 숫자를 입력하세요.";
@@ -79,6 +102,8 @@
         message.textContent = `🎉 정답입니다!`;
         document.getElementById("score").textContent = `점수: ${score}`;
         gameOver = true;
+        saveScore(name, score);
+        updateRanking();
       } else if (guess < answer) {
         message.textContent = "⬆️ Up!";
       } else {
@@ -87,7 +112,11 @@
 
       if (triesLeft === 0 && !gameOver) {
         message.textContent = `❌ 실패! 정답은 ${answer}였습니다.`;
+        score = 0;
+        document.getElementById("score").textContent = `점수: 0`;
         gameOver = true;
+        saveScore(name, score);
+        updateRanking();
       }
 
       guessInput.value = "";
@@ -96,16 +125,40 @@
 
     function restartGame() {
       answer = Math.floor(Math.random() * 50) + 1;
-      triesLeft = 5;
+      triesLeft = 7;
       score = 0;
       gameOver = false;
 
       document.getElementById("message").textContent = "";
       document.getElementById("score").textContent = "점수: 0";
-      document.getElementById("tries").textContent = "남은 시도: 5";
+      document.getElementById("tries").textContent = "남은 시도: 7";
       document.getElementById("guessInput").value = "";
       document.getElementById("guessInput").focus();
     }
+
+    function saveScore(name, score) {
+      if (!name || score === undefined || isNaN(score)) return; // 💥 방어 코드
+
+      let scores = JSON.parse(localStorage.getItem("ranking")) || [];
+      scores.push({ name: name, score: score });
+      scores.sort((a, b) => b.score - a.score);
+      scores = scores.slice(0, 10);
+      localStorage.setItem("ranking", JSON.stringify(scores));
+    }
+
+    function updateRanking() {
+      const scores = JSON.parse(localStorage.getItem("ranking")) || [];
+      const rankingList = document.getElementById("rankingList");
+      rankingList.innerHTML = "";
+
+      scores.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = `${entry.name}: ${entry.score}점`;
+        rankingList.appendChild(li);
+      });
+    }
+
+    updateRanking(); // 첫 로딩 시 랭킹 표시
   </script>
 </body>
 </html>
