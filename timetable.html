@@ -2,37 +2,75 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>간단한 시간표</title>
+  <title>예쁜 시간표</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    input {
-      padding: 8px;
-      font-size: 16px;
-      width: 200px;
-      margin-bottom: 15px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      padding: 30px;
       text-align: center;
     }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
     }
+
+    input {
+      padding: 10px 15px;
+      font-size: 16px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+    }
+
+    table {
+      width: 90%;
+      max-width: 800px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      border-bottom: 1px solid #eaeaea;
+      padding: 15px;
+      font-size: 16px;
+    }
+
+    th {
+      background-color: #4a90e2;
+      color: white;
+    }
+
+    tr:hover td {
+      background-color: #f2f8ff;
+    }
+
     .highlight {
-      background-color: yellow;
+      background-color: #ffe066 !important;
       font-weight: bold;
+      color: #333;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
 
-<h2>시간표</h2>
-<input type="text" id="searchInput" placeholder="수업명을 입력하세요" onkeyup="highlightSubject()">
+<h2>📚 나만의 시간표</h2>
+<input type="text" id="searchInput" placeholder="🔍 수업명을 입력하세요" onkeyup="highlightSubject()">
 
 <table>
   <thead>
@@ -71,8 +109,8 @@
 
 <script>
 function highlightSubject() {
-  let input = document.getElementById("searchInput").value.trim();
-  let tdList = document.querySelectorAll("td");
+  const input = document.getElementById("searchInput").value.trim();
+  const tdList = document.querySelectorAll("td");
 
   tdList.forEach(td => {
     td.classList.remove("highlight");
