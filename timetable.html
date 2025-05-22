@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>검색 + 카드 애니메이션 시간표</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3f6fa;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 25px;
+    }
+
+    input {
+      padding: 10px 15px;
+      font-size: 16px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #4a90e2;
+      color: white;
+      padding: 10px;
+    }
+
+    td {
+      width: 120px;
+      height: 100px;
+      perspective: 1000px;
+      padding: 5px;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      border-radius: 10px;
+    }
+
+    .flip-container:hover .card {
+      transform: rotateY(180deg);
+    }
+
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .front {
+      background-color: #ffffff;
+      color: #333;
+    }
+
+    .back {
+      background-color: #ffe066;
+      transform: rotateY(180deg);
+      color: #333;
+    }
+
+    .highlight .front {
+      background-color: #a0d8ef !important;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📘 검색 가능한 애니메이션 시간표</h2>
+<input type="text" id="searchInput" placeholder="수업명을 입력하세요" onkeyup="highlightSubject()">
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>요일</th>
+      <th>1교시</th>
+      <th>2교시</th>
+      <th>3교시</th>
+      <th>4교시</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>월</td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">국어</div>
+          <div class="back">김선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">수학</div>
+          <div class="back">박선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">영어</div>
+          <div class="back">이선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">체육</div>
+          <div class="back">최선생님</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>화</td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">과학</div>
+          <div class="back">장선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">미술</div>
+          <div class="back">정선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">국어</div>
+          <div class="back">김선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">사회</div>
+          <div class="back">윤선생님</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>수</td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">영어</div>
+          <div class="back">이선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">수학</div>
+          <div class="back">박선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">음악</div>
+          <div class="back">조선생님</div>
+        </div>
+      </td>
+      <td class="flip-container">
+        <div class="card">
+          <div class="front">국어</div>
+          <div class="back">김선생님</div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+function highlightSubject() {
+  const input = document.getElementById("searchInput").value.trim();
+  const flipContainers = document.querySelectorAll(".flip-container");
+
+  flipContainers.forEach(container => {
+    const front = container.querySelector(".front");
+    container.classList.remove("highlight");
+    if (input && front.textContent.includes(input)) {
+      container.classList.add("highlight");
+    }
+  });
+}
+</script>
+
+</body>
+</html>
