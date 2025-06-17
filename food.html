@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>🍱 오늘의 급식</title>
+  <style>
+    body {
+      font-family: 'Apple SD Gothic Neo', sans-serif;
+      background: #eef4f8;
+      text-align: center;
+      padding: 40px;
+    }
+    .card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 40px;
+      margin-bottom: 30px;
+    }
+    .date {
+      font-weight: bold;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .meal-type {
+      font-size: 28px;
+      margin-top: 35px;
+      color: #4CAF50;
+    }
+    .dish {
+      font-size: 22px;
+      margin-top: 15px;
+      line-height: 2;
+      white-space: pre-line;
+    }
+    .footer {
+      font-size: 16px;
+      color: #888;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🍽️ 오늘의 급식</h1>
+    <div id="meal-info">
+      <div class="date">불러오는 중입니다...</div>
+    </div>
+    <div class="footer">📍 성일정보고등학교 급식 정보</div>
+  </div>
+
+  <script>
+    const officeCode = "J10";
+    const schoolCode = "7530591";
+    const key = "86d5824114ac4902a87d57ce9146867d";
+
+    async function fetchMeal() {
+      const now = new Date();
+      const yyyyMMdd = now.toISOString().split("T")[0].replace(/-/g, "");
+      const dateStr = now.toLocaleDateString("ko-KR", {
+        year: "numeric", month: "long", day: "numeric", weekday: "long"
+      });
+
+      const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${key}&Type=json&ATPT_OFCDC_SC_CODE=${officeCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${yyyyMMdd}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const meals = data.mealServiceDietInfo?.[1]?.row;
+
+        const container = document.getElementById("meal-info");
+        container.innerHTML = `<div class="date">📅 ${dateStr}</div>`;
+
+        if (!meals || meals.length === 0) {
+          container.innerHTML += `<div class="dish">급식 정보가 없습니다.</div>`;
+          return;
+        }
+
+        meals.forEach(item => {
+          const mealType = item.MMEAL_SC_NM; // 조식/중식/석식
+          const dishes = item.DDISH_NM
+                            .replace(/<br\/?>/g, '\n')
+                            .replace(/\([^)]*\)/g, ""); // 알레르기 정보 제거
+
+          container.innerHTML += `
+            <div class="meal-type">${mealType}</div>
+            <div class="dish">${dishes}</div>
+          `;
+        });
+
+      } catch (e) {
+        document.getElementById("meal-info").innerHTML =
+          `<div class="date">📅 ${dateStr}</div><div class="dish">❌ 급식 정보를 불러오는 데 실패했습니다.</div>`;
+      }
+    }
+
+    fetchMeal();
+  </script>
+</body>
+</html>
