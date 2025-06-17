@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>키오스크 홈</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Apple SD Gothic Neo', sans-serif;
+      background: linear-gradient(to bottom, #dbefff, #f6fbff);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      font-size: 40px;
+      margin-bottom: 60px;
+    }
+    .menu-button {
+      width: 80%;
+      max-width: 400px;
+      font-size: 32px;
+      padding: 30px;
+      margin: 20px 0;
+      border: none;
+      border-radius: 20px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .menu-button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 성일정보고 키오스크</h1>
+
+  <button class="menu-button" onclick="location.href='https://cloud9june.github.io/sungil-edu/today.html'">🔮 오늘의 운세 보기</button>
+  <button class="menu-button" onclick="location.href='https://cloud9june.github.io/sungil-edu/food.html'">🍱 오늘의 급식 보기</button>
+</body>
+</html>
