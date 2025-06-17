@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>오늘의 운세</title>
+  <style>
+    body {
+      background-color: #f0f8ff;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    input {
+      font-size: 20px;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      font-size: 22px;
+      padding: 12px 24px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #fortune-box {
+      margin-top: 40px;
+      padding: 30px;
+      font-size: 24px;
+      background-color: #fff;
+      border: 3px solid #aaa;
+      border-radius: 15px;
+      display: none;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.1);
+      white-space: pre-wrap;
+    }
+    #buttons {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔮 오늘의 운세</h1>
+
+  <div id="input-area">
+    <input type="text" id="name" placeholder="이름 또는 별명 입력">
+    <input type="date" id="birthday" max="2025-12-31">
+    <br>
+    <button onclick="showFortune()">운세 확인하기</button>
+  </div>
+
+  <div id="fortune-box"></div>
+
+  <div id="buttons" style="display: none;">
+    <button onclick="resetPage()">🔁 다시하기</button>
+  </div>
+
+  <script>
+    const fortunes = [
+      "운동을(를) 열심히 하면 보람을 느낄 수 있어요.",
+      "행운에 대해 좋은 피드백을 받을 수 있어요.",
+      "인간관계에 도전하면 좋은 결과가 있을 거예요.",
+      "행운에서 나오는 감정을 잘 조절하는 하루가 필요해요.",
+      "연애이(가) 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "자신감과 관련된 좋은 소식이 들릴 수 있어요.",
+      "자신감에서는 평소대로만 해도 괜찮은 하루예요.",
+      "공부에서 누군가가 당신을 응원하고 있어요.",
+      "컨디션으로 인한 스트레스는 잠시 내려놓는 것도 좋아요.",
+      "우정을(를) 열심히 하면 보람을 느낄 수 있어요.",
+      "자신감이(가) 마음처럼 안 풀릴 수 있어요. 차분하게 대처하세요.",
+      "집중력에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "우정이(가) 마음처럼 안 풀릴 수 있어요. 차분하게 대처하세요.",
+      "행운으로 인한 스트레스는 잠시 내려놓는 것도 좋아요.",
+      "공부에 대해 너무 걱정하지 마세요. 시간이 해결해줘요.",
+      "연애에서 누군가가 당신을 응원하고 있어요.",
+      "집중력을 꾸준히 하면 행운이 찾아와요.",
+      "컨디션에 좋은 기운이 가득한 하루예요.",
+      "인간관계에 작은 실수가 생길 수 있어요. 주의하세요.",
+      "공부에 좋은 기운이 가득한 하루예요.",
+      "자신감을 열심히 하면 보람을 느낄 수 있어요.",
+      "연애를 꾸준히 하면 행운이 찾아와요.",
+      "집중력에 대해 좋은 피드백을 받을 수 있어요.",
+      "우정에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "운동에서 나오는 감정을 잘 조절하는 하루가 필요해요.",
+      "인간관계에서 평소보다 더 좋은 성과가 기대돼요.",
+      "행운이(가) 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "자신감에 도전하면 좋은 결과가 있을 거예요.",
+      "우정과 관련된 좋은 소식이 들릴 수 있어요.",
+      "운동을 꾸준히 하면 행운이 찾아와요.",
+      "컨디션이(가) 마음처럼 안 풀릴 수 있어요. 차분하게 대처하세요.",
+      "공부에 너무 욕심내지 말고 평정심을 유지하세요.",
+      "운동에 대해 좋은 피드백을 받을 수 있어요.",
+      "인간관계에서는 평소대로만 해도 괜찮은 하루예요.",
+      "자신감에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "연애를 열심히 하면 보람을 느낄 수 있어요.",
+      "행운에서 평소보다 더 좋은 성과가 기대돼요.",
+      "공부에서 나오는 감정을 잘 조절하는 하루가 필요해요.",
+      "우정에 너무 욕심내지 말고 평정심을 유지하세요.",
+      "운동에 도전하면 좋은 결과가 있을 거예요.",
+      "집중력과 관련된 좋은 소식이 들릴 수 있어요.",
+      "자신감으로 인한 스트레스는 잠시 내려놓는 것도 좋아요.",
+      "연애에 도전하면 좋은 결과가 있을 거예요.",
+      "공부에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "우정이 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "운동에서 누군가가 당신을 응원하고 있어요.",
+      "행운에 너무 욕심내지 말고 평정심을 유지하세요.",
+      "자신감에 좋은 기운이 가득한 하루예요.",
+      "인간관계에서 좋은 피드백을 받을 수 있어요.",
+      "집중력을 열심히 하면 보람을 느낄 수 있어요.",
+      "우정을 꾸준히 하면 행운이 찾아와요.",
+      "공부와 관련된 좋은 소식이 들릴 수 있어요.",
+      "컨디션에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "운동에 좋은 기운이 가득한 하루예요.",
+      "연애에서는 평소대로만 해도 괜찮은 하루예요.",
+      "자신감에 대해 너무 걱정하지 마세요. 시간이 해결해줘요.",
+      "행운이 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "우정에 대해 좋은 피드백을 받을 수 있어요.",
+      "집중력에 도전하면 좋은 결과가 있을 거예요.",
+      "공부에서 좋은 피드백을 받을 수 있어요.",
+      "운동에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "자신감을 꾸준히 하면 행운이 찾아와요.",
+      "인간관계에서 나오는 감정을 잘 조절하는 하루가 필요해요.",
+      "연애에 대해 너무 걱정하지 마세요. 시간이 해결해줘요.",
+      "집중력에서 누군가가 당신을 응원하고 있어요.",
+      "우정에 도전하면 좋은 결과가 있을 거예요.",
+      "운동과 관련된 좋은 소식이 들릴 수 있어요.",
+      "공부에 작은 실수가 생길 수 있어요. 주의하세요.",
+      "자신감에서 평소보다 더 좋은 성과가 기대돼요.",
+      "행운에서 실수를 하더라도 괜찮아요, 누구나 그래요.",
+      "연애에서 좋은 피드백을 받을 수 있어요.",
+      "우정이 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "공부로 인한 스트레스는 잠시 내려놓는 것도 좋아요.",
+      "인간관계에 좋은 기운이 가득한 하루예요.",
+      "집중력에 너무 욕심내지 말고 평정심을 유지하세요.",
+      "자신감에 대해 좋은 피드백을 받을 수 있어요.",
+      "연애에 좋은 기운이 가득한 하루예요.",
+      "우정으로 인한 스트레스는 잠시 내려놓는 것도 좋아요.",
+      "운동이 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "공부에 도전하면 좋은 결과가 있을 거예요.",
+      "행운에서 누군가가 당신을 응원하고 있어요.",
+      "집중력에 좋은 기운이 가득한 하루예요.",
+      "인간관계에 대해 너무 걱정하지 마세요. 시간이 해결해줘요.",
+      "자신감에서 나오는 감정을 잘 조절하는 하루가 필요해요.",
+      "우정에서는 평소대로만 해도 괜찮은 하루예요.",
+      "운동에서 평소보다 더 좋은 성과가 기대돼요.",
+      "공부에 대해 좋은 피드백을 받을 수 있어요.",
+      "연애에서 나오는 감정을 잘 조절하는 하루가 필요해요.",
+      "우정과 관련된 좋은 피드백을 받을 수 있어요.",
+      "자신감에 대해 너무 걱정하지 마세요. 시간이 해결해줘요.",
+      "행운을 열심히 하면 보람을 느낄 수 있어요.",
+      "집중력에 작은 실수가 생길 수 있어요. 주의하세요.",
+      "공부이 기대처럼 안 돼도 너무 실망하지 마세요.",
+      "운동에 너무 욕심내지 말고 평정심을 유지하세요.",
+      "자신감에서 좋은 피드백을 받을 수 있어요.",
+      "우정에 좋은 기운이 가득한 하루예요.",
+      "연애로 인한 스트레스는 잠시 내려놓는 것도 좋아요.",
+      "인간관계에 대해 좋은 피드백을 받을 수 있어요.",
+      "집중력을 꾸준히 하면 행운이 찾아와요.",
+      "공부에서는 평소대로만 해도 괜찮은 하루예요."
+    ];
+
+    const disclaimers = [
+      "☝️ 운세는 재미로 보는 것! 너무 맹신하지 말고 오늘도 멋지게 보내세요!",
+      "😎 믿거나 말거나~ 중요한 건 너의 노력!",
+      "📚 진짜 미래는 지금 만드는 거예요!",
+      "😂 이건 재미입니다. 선생님도 그러셨어요.",
+      "🎲 운세는 운세일 뿐! 오늘 하루 멋지게 만들어봐요!"
+    ];
+
+    function showFortune() {
+      const name = document.getElementById('name').value.trim();
+      const birthday = document.getElementById('birthday').value;
+      const box = document.getElementById("fortune-box");
+      const today = new Date().toISOString().split('T')[0];
+
+      if (!name || !birthday) {
+        alert("이름과 생년월일을 모두 입력해주세요!");
+        return;
+      }
+
+      const userKey = `fortune_${name}_${birthday}`;
+      const lastUsed = localStorage.getItem(userKey);
+
+      if (lastUsed === today) {
+        alert(`${name}님은 오늘 이미 운세를 확인하셨습니다! 내일 또 만나요 😊`);
+        return;
+      }
+
+      localStorage.setItem(userKey, today);
+
+      const dateStr = new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+      });
+
+      const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+      const disclaimer = disclaimers[Math.floor(Math.random() * disclaimers.length)];
+
+      box.innerHTML =
+        box.innerHTML =
+            `<div style="text-align: center;">
+                <div style="font-size: 20px; margin-bottom: 8px;">📅 <strong>${dateStr}</strong></div>
+                <div style="font-size: 20px; margin-bottom: 20px;">👤 <strong>${name}님</strong>의 오늘의 운세는…</div>
+                <div style="font-size: 26px; margin: 20px 0;">✨ ${fortune}</div>
+                <hr style="margin:30px auto; border: none; border-top: 2px dashed #aaa; width: 80%;">
+                <div style="font-size: 18px; color: #555; margin-top: 5px;">${disclaimer}</div>
+            </div>`;
+      box.style.display = "block";
+
+      document.getElementById("buttons").style.display = "block";
+    }
+
+    function resetPage() {
+      document.getElementById("name").value = "";
+      document.getElementById("birthday").value = "";
+      document.getElementById("fortune-box").style.display = "none";
+      document.getElementById("fortune-box").innerHTML = "";
+      document.getElementById("buttons").style.display = "none";
+    }
+  </script>
+</body>
+</html>
