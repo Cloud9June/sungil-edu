@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>추억의 뽑기 - 최종 완성</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #ffeb3b;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      color: #d32f2f;
+      margin-bottom: 20px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      max-width: 400px;
+      margin: 0 auto;
+      filter: blur(4px);
+      pointer-events: none;
+      transition: filter 0.5s;
+    }
+    .box {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      perspective: 1000px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .flip-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s ease-in-out;
+      transform-style: preserve-3d;
+    }
+    .flip-front, .flip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      font-size: 18px;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .flip-front {
+      background: #0d47a1;
+      color: yellow;
+    }
+    .flip-back {
+      background: #f44336;
+      color: white;
+      transform: rotateY(180deg);
+    }
+    .flip-effect .flip-inner {
+      animation: flipZoom 1.5s ease-in-out forwards;
+    }
+    @keyframes flipZoom {
+      0% { transform: scale(1) rotateY(0deg); z-index: 100; }
+      50% { transform: scale(2.5) rotateY(90deg); z-index: 1000; }
+      100% { transform: scale(1) rotateY(180deg); z-index: 100; }
+    }
+    .flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #2e7d32;
+    }
+    #startForm {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #startForm input {
+      margin: 10px;
+      padding: 10px;
+      width: 250px;
+      font-size: 1em;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    #startForm button {
+      padding: 10px 20px;
+      background: #4caf50;
+      border: none;
+      color: white;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #congratsMessage {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1002;
+      background: white;
+      border: 4px solid #4caf50;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 1.4em;
+      white-space: pre-line;
+    }
+    #endMessage {
+      display: none;
+      margin-top: 30px;
+      font-size: 1.6em;
+      color: #b71c1c;
+      font-weight: bold;
+    }
+    #congratsBtn {
+      padding: 5px 15px;
+      background-color: #4caf50;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 14px;
+    }
+    #finalPopup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    #finalContent {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    #winnerList {
+      margin: 20px 0;
+      text-align: left;
+      font-size: 2em;
+      line-height: 1.6;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    #resetBtn {
+      padding: 5px 10px;
+      background-color: #d32f2f;
+      color: white;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>추억의 뽑기</h1>
+  <div id="grid"></div>
+  <div class="message" id="message"></div>
+  <div id="endMessage">🎉 모든 당첨자가 나왔습니다! 뽑기를 종료합니다.</div>
+
+  <div id="startForm">
+    <h2>뽑기 전 정보를 입력하세요</h2>
+    <input type="text" id="studentId" placeholder="학번 입력">
+    <input type="text" id="studentName" placeholder="이름 입력">
+    <button onclick="startGame()">뽑기 시작</button>
+  </div>
+
+  <div id="congratsMessage">
+    <div id="congratsText"></div>
+    <button id="congratsBtn" onclick="confirmWinner()">확인</button>
+  </div>
+
+  <div id="finalPopup">
+    <div id="finalContent">
+      <h2>🎉 모든 당첨자들 축하합니다!</h2>
+      <div id="winnerList"></div>
+      <button id="resetBtn" onclick="checkPassword()">🔄 초기화</button>
+    </div>
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const startForm = document.getElementById('startForm');
+    const congratsBox = document.getElementById('congratsMessage');
+    const congratsText = document.getElementById('congratsText');
+    const endMessage = document.getElementById('endMessage');
+    const finalPopup = document.getElementById('finalPopup');
+    const winnerList = document.getElementById('winnerList');
+
+    let gameStarted = false;
+    let clicked = false;
+    let winCount = 0;
+    const MAX_WINS = 5;
+    const usedStudents = new Set();
+    const winningIndexes = new Set();
+    const winners = [];
+
+    while (winningIndexes.size < MAX_WINS) {
+      winningIndexes.add(Math.floor(Math.random() * 100));
+    }
+
+    for (let i = 0; i < 100; i++) {
+      const box = document.createElement('div');
+      box.className = 'box';
+      const isWinner = winningIndexes.has(i);
+      box.innerHTML = `
+        <div class="flip-inner">
+          <div class="flip-front">★${isWinner ? '✅' : ''}</div>
+          <div class="flip-back">${isWinner ? '당첨!!' : '꽝!!'}</div>
+        </div>`;
+      box.dataset.index = i;
+
+      box.addEventListener('click', function () {
+        if (!gameStarted || clicked || winCount >= MAX_WINS || box.classList.contains('clicked')) return;
+        clicked = true;
+
+        const id = document.getElementById('studentId').value.trim();
+        const name = document.getElementById('studentName').value.trim();
+        const key = `${id}_${name}`;
+
+        if (!id || !name || usedStudents.has(key)) {
+          alert("학번과 이름이 필요하거나 이미 참여했습니다.");
+          clicked = false;
+          return;
+        }
+
+        usedStudents.add(key);
+        box.classList.add('clicked');
+
+        if (winningIndexes.has(Number(box.dataset.index))) {
+          winCount++;
+          winners.push({ id, name });
+          box.classList.add('flipped');
+          const teacher = "김선생님";
+          const remain = MAX_WINS - winCount;
+          congratsText.innerText =
+            `🎉 축 당첨!! ${id} ${name} 학생!!
+
+행운이 가득한 하루!! ${teacher}을(를) 찾아가면 행운이 있을 거예요!
+
+📸 인증사진을 찍어서 가져가세요!!
+
+✅ 인증샷 찍은 후 다음 학생은 [확인] 버튼을 눌러 뽑기를 다시 시작하세요.
+
+남은 당첨 횟수: ${remain}회`;
+          congratsBox.style.display = 'block';
+        } else {
+          box.classList.add('flip-effect');
+          setTimeout(() => {
+            box.classList.remove('flip-effect');
+            box.classList.add('flipped');
+            resetForm();
+          }, 2200); // 꽝일 때 약간 늦게 폼 표시
+        }
+
+        if (winCount === MAX_WINS) {
+          setTimeout(() => {
+            grid.style.filter = 'blur(6px)';
+            grid.style.pointerEvents = 'none';
+            endMessage.style.display = 'block';
+          }, 800);
+        }
+      });
+
+      grid.appendChild(box);
+    }
+
+    function startGame() {
+      const id = document.getElementById('studentId').value.trim();
+      const name = document.getElementById('studentName').value.trim();
+      const key = `${id}_${name}`;
+      if (!id || !name || usedStudents.has(key)) {
+        alert("학번과 이름이 필요하거나 이미 참여했습니다.");
+        return;
+      }
+      gameStarted = true;
+      clicked = false;
+      startForm.style.display = 'none';
+      grid.style.filter = 'none';
+      grid.style.pointerEvents = 'auto';
+    }
+
+    function confirmWinner() {
+      congratsBox.style.display = 'none';
+      if (winCount < MAX_WINS) {
+        resetForm();
+      } else {
+        // 마지막 당첨자가 확인 누르면 축하 팝업 띄우기
+        const listHtml = winners.map((w, i) => `${i + 1}. ${w.id} ${w.name}`).join('<br>');
+        winnerList.innerHTML = listHtml;
+        finalPopup.style.display = 'flex';
+      }
+    }
+
+    function resetForm() {
+      startForm.style.display = 'flex';
+      document.getElementById('studentId').value = '';
+      document.getElementById('studentName').value = '';
+      gameStarted = false;
+      clicked = false;
+    }
+
+    function checkPassword() {
+      const pw = prompt("초기화를 위해 비밀번호를 입력하세요:");
+      if (pw === "1320") {
+        location.reload();
+      } else {
+        alert("비밀번호가 틀렸습니다. 초기화가 취소됩니다.");
+      }
+    }
+  </script>
+</body>
+</html>
