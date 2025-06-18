@@ -92,6 +92,16 @@
       align-items: center;
       z-index: 1000;
     }
+    #rule {
+      max-width: 300px;
+      text-align: left;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+      color: #333;
+      padding: 5px;
+      border: 1px solid #333;
+      border-radius: 5px;
+    }
     #startForm input {
       margin: 10px;
       padding: 10px;
@@ -181,8 +191,16 @@
   <div id="endMessage">🎉 모든 당첨자가 나왔습니다! 뽑기를 종료합니다.</div>
 
   <div id="startForm">
+    <div id="rule">
+    <strong>🎯 뽑기 규칙 안내</strong><br>
+      1. 반드시 본인의 학번과 이름을 정확히 입력해주세요.<br>
+      2. 한 사람당 1번만 뽑을 수 있습니다.<br>
+      3. 뽑기 결과는 수정이 불가능하니 신중하게 클릭하세요!<br>
+      4. 당첨자는 꼭 인증사진을 찍어야하며, 본인이 아닌 경우에는 상품을 받을 수 없습니다!
+    </div>
+
     <h2>뽑기 전 정보를 입력하세요</h2>
-    <input type="text" id="studentId" placeholder="학번 입력">
+    <input type="number" id="studentId" placeholder="학번 입력">
     <input type="text" id="studentName" placeholder="이름 입력">
     <button onclick="startGame()">뽑기 시작</button>
   </div>
@@ -227,7 +245,7 @@
       const isWinner = winningIndexes.has(i);
       box.innerHTML = `
         <div class="flip-inner">
-          <div class="flip-front">★${isWinner ? '' : ''}</div>
+          <div class="flip-front">★${isWinner ? 'v' : ''}</div>
           <div class="flip-back">${isWinner ? '당첨!!' : '꽝!!'}</div>
         </div>`;
       box.dataset.index = i;
@@ -258,15 +276,9 @@
           setTimeout(() => {
             box.classList.remove('flip-effect');
             box.classList.add('flipped');
-            // resetForm();
-          }, 2200);
-
-
-
-
-          const teacher = "교감선생님";
-          const remain = MAX_WINS - winCount;
-          congratsText.innerText =
+            
+            setTimeout(() => {
+              congratsText.innerText =
             `🎉 축 당첨!! ${id} ${name} 학생!!
 
 행운이 가득한 하루!! ${teacher}을(를) 찾아가면 행운이 있을 거예요!
@@ -277,6 +289,11 @@
 
 남은 당첨 횟수: ${remain}회`;
           congratsBox.style.display = 'block';
+            }, 150)
+          }, 2200);
+
+          const teacher = "교감선생님";
+          const remain = MAX_WINS - winCount;
         } else {
           box.classList.add('flip-effect');
           setTimeout(() => {
