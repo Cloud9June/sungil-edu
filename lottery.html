@@ -19,9 +19,9 @@
     }
     #grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(8, 1fr);
       gap: 6px;
-      max-width: 400px;
+      max-width: 600px;
       margin: 0 auto;
       filter: blur(4px);
       pointer-events: none;
@@ -221,7 +221,7 @@
       winningIndexes.add(Math.floor(Math.random() * 100));
     }
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 104; i++) {
       const box = document.createElement('div');
       box.className = 'box';
       const isWinner = winningIndexes.has(i);
@@ -252,8 +252,19 @@
         if (winningIndexes.has(Number(box.dataset.index))) {
           winCount++;
           winners.push({ id, name });
-          box.classList.add('flipped');
-          const teacher = "김선생님";
+          // box.classList.add('flipped');
+
+          box.classList.add('flip-effect');
+          setTimeout(() => {
+            box.classList.remove('flip-effect');
+            box.classList.add('flipped');
+            // resetForm();
+          }, 2200);
+
+
+
+
+          const teacher = "교감선생님";
           const remain = MAX_WINS - winCount;
           congratsText.innerText =
             `🎉 축 당첨!! ${id} ${name} 학생!!
