@@ -227,7 +227,7 @@
       const isWinner = winningIndexes.has(i);
       box.innerHTML = `
         <div class="flip-inner">
-          <div class="flip-front">★${isWinner ? '✅' : ''}</div>
+          <div class="flip-front">★${isWinner ? '' : ''}</div>
           <div class="flip-back">${isWinner ? '당첨!!' : '꽝!!'}</div>
         </div>`;
       box.dataset.index = i;
