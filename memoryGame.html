@@ -105,6 +105,11 @@
     const soundError = document.getElementById("errorSound");
     const soundWin = document.getElementById("winSound");
 
+    soundFlip.volume = 1.0;
+    soundCorrect.volume = 0.6;
+    soundError.volume = 0.6;
+    soundWin.volume = 0.8;
+
     function playSound(audio) {
       audio.currentTime = 0;
       audio.play();
