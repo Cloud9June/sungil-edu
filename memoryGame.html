@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>기억력 게임</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #timer {
+      font-size: 32px;
+      font-weight: bold;
+      background: #000;
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: #00ff00;
+      margin-top: 10px;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      position: relative;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      transform: rotateY(0deg); /* 기본은 앞면 보이기 */
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg); /* 클릭 시 뒷면(숫자) 보이기 */
+    }
+
+    .card-front, .card-back {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      font-size: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-front {
+      background: #fff;
+      border: 2px solid #ccc;
+      transform: rotateY(180deg); /* 앞면 */
+    }
+
+    .card-back {
+      background: #4caf50;
+      border: 2px solid #388e3c;
+      font-size: 24px;
+      color: white;
+      transform: rotateY(0deg); /* 뒷면 */
+    }
+  </style>
+</head>
+<body>
+  <h1>🍓 기억력 게임</h1>
+  <div id="timer">00.00초</div>
+  <div class="game-board" id="gameBoard"></div>
+
+  <!-- 사운드 -->
+  <audio id="flipSound" src="sounds/pageturn-102978.mp3" preload="auto"></audio>
+  <audio id="correctSound" src="sounds/correct-356013.mp3" preload="auto"></audio>
+  <audio id="errorSound" src="sounds/error-03-125761.mp3" preload="auto"></audio>
+  <audio id="winSound" src="sounds/you-win-sequence-3-183950.mp3" preload="auto"></audio>
+
+  <script>
+    const soundFlip = document.getElementById("flipSound");
+    const soundCorrect = document.getElementById("correctSound");
+    const soundError = document.getElementById("errorSound");
+    const soundWin = document.getElementById("winSound");
+
+    function playSound(audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
+
+    const emojis = [
+      '🍎', '🍌', '🍇', '🍓', '🍊', '🥝',
+      '🍍', '🥥', '🍒', '🍉', '🍐', '🍑'
+    ];
+    const shuffled = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    const gameBoard = document.getElementById('gameBoard');
+    const timerDisplay = document.getElementById('timer');
+
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = true;
+    let matchedCount = 0;
+    let startTime = 0;
+    let timerInterval = null;
+
+    function startTimer() {
+      startTime = performance.now();
+      timerInterval = setInterval(() => {
+        const elapsed = (performance.now() - startTime) / 1000;
+        timerDisplay.textContent = `${elapsed.toFixed(2)}초`;
+      }, 10);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function createCard(emoji, index) {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.dataset.emoji = emoji;
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-front">${emoji}</div>
+          <div class="card-back">${index + 1}</div>
+        </div>
+      `;
+      return card;
+    }
+
+    shuffled.forEach((emoji, idx) => {
+      const card = createCard(emoji, idx);
+      gameBoard.appendChild(card);
+    });
+
+    const allCards = document.querySelectorAll('.card');
+
+    async function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function sequentialRevealAndHide() {
+      for (let i = 0; i < allCards.length; i++) {
+        allCards[i].classList.add('flipped');
+        playSound(soundFlip);
+        await delay(80);
+      }
+
+      await delay(1000);
+
+      for (let i = 0; i < allCards.length; i++) {
+        allCards[i].classList.remove('flipped');
+        playSound(soundFlip);
+        await delay(80);
+      }
+
+      lockBoard = false;
+      startTimer();
+    }
+
+    sequentialRevealAndHide();
+
+    allCards.forEach(card => {
+      card.addEventListener('click', () => {
+        if (lockBoard || card.classList.contains('flipped')) return;
+
+        card.classList.add('flipped');
+        playSound(soundFlip);
+
+        if (!firstCard) {
+          firstCard = card;
+        } else {
+          secondCard = card;
+          lockBoard = true;
+
+          if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+            playSound(soundCorrect);
+            matchedCount++;
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+
+            if (matchedCount === emojis.length) {
+              stopTimer();
+              playSound(soundWin);
+              setTimeout(() => alert(`🎉 모두 맞췄습니다! ⏱️ ${timerDisplay.textContent} 소요`), 300);
+            }
+          } else {
+            playSound(soundError);
+            setTimeout(() => {
+              firstCard.classList.remove('flipped');
+              secondCard.classList.remove('flipped');
+              playSound(soundFlip);
+              firstCard = null;
+              secondCard = null;
+              lockBoard = false;
+            }, 1000);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
