@@ -509,14 +509,23 @@
         };
       }
 
+      const formData = new URLSearchParams();
+      formData.append("group", data.group);
+      formData.append("school", data.school);
+      formData.append("grade", data.grade);
+      formData.append("class", data.class);
+      formData.append("number", data.number);
+      formData.append("phone", data.phone);
+
       fetch(
-        "https://script.google.com/macros/s/AKfycbwjQaoax3DFxBKnewO4eygHvcNEJF1k7v-9-SuefOnNL2CHMiaqH-aWSQ8-Vw8cxhAm-w/exec", {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }).then(res => res.text()).then(console.log).catch(console.error);
+          "https://script.google.com/macros/s/AKfycbwjQaoax3DFxBKnewO4eygHvcNEJF1k7v-9-SuefOnNL2CHMiaqH-aWSQ8-Vw8cxhAm-w/exec", {
+            method: "POST",
+            body: formData
+          })
+        .then(res => res.text())
+        .then(console.log)
+        .catch(console.error);
+
 
       document.getElementById('studentForm').style.display = 'none';
       document.getElementById('middleForm').style.display = 'none';
