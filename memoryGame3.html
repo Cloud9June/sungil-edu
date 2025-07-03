@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>기억력 게임</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            text-align: center;
+            background: #f5f5f5;
+            animation: bgPulse 10s infinite;
+            padding: 20px;
+            margin: 0;
+        }
+
+        @keyframes bgPulse {
+
+            0%,
+            100% {
+                background-color: #f5f5f5;
+            }
+
+            50% {
+                background-color: #eaeaea;
+            }
+        }
+
+        h1 {
+            color: #111;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        #timer {
+            font-size: 32px;
+            font-weight: bold;
+            background: #000;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #00ff00;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            transform: rotateY(0deg);
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 14px;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-front {
+            background: #ffffff;
+            border: 2px solid #444;
+            transform: rotateY(180deg);
+            color: #111;
+        }
+
+        .card-back {
+            background: #444;
+            border: 2px solid #aaa;
+            font-size: 24px;
+            color: #fff;
+            transform: rotateY(0deg);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🍓 기억력 게임</h1>
+    <div id="timer">00.00초</div>
+    <div class="game-board" id="gameBoard"></div>
+
+    <!-- 사운드 -->
+    <audio id="flipSound" src="sounds/pageturn-102978.mp3" preload="auto"></audio>
+    <audio id="correctSound" src="sounds/correct-356013.mp3" preload="auto"></audio>
+    <audio id="errorSound" src="sounds/error-03-125761.mp3" preload="auto"></audio>
+    <audio id="winSound" src="sounds/you-win-sequence-3-183950.mp3" preload="auto"></audio>
+
+    <div id="controlButtons" style="
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 10px;
+  z-index: 1000;
+">
+        <button onclick="location.href='https://cloud9june.github.io/sungil-edu/kiosk.html'" style="font-size: 22px; padding: 14px 26px;
+           background: white; color: #111;
+           border: 2px solid #444; border-radius: 14px;
+           box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+           font-family: 'Pretendard', sans-serif;
+           transition: all 0.2s ease;" onmousedown="this.style.transform='scale(0.96)'"
+            onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'"
+            ontouchend="this.style.transform='scale(1)'">
+            🏠 홈으로
+        </button>
+
+        <button id="startGameBtn" style="font-size: 22px; padding: 14px 26px;
+           background: white; color: #111;
+           border: 2px solid #444; border-radius: 14px;
+           box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+           font-family: 'Pretendard', sans-serif;
+           transition: all 0.2s ease;">
+            ▶️ 게임 시작
+        </button>
+
+        <button id="restartGameBtn" style="display: none; font-size: 22px; padding: 14px 26px;
+           background: white; color: #111;
+           border: 2px solid #444; border-radius: 14px;
+           box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+           font-family: 'Pretendard', sans-serif;
+           transition: all 0.2s ease;" onclick="location.reload()">
+            🔁 다시하기
+        </button>
+    </div>
+
+    <script>
+        const soundFlip = document.getElementById("flipSound");
+        const soundCorrect = document.getElementById("correctSound");
+        const soundError = document.getElementById("errorSound");
+        const soundWin = document.getElementById("winSound");
+
+        soundFlip.volume = 1.0;
+        soundCorrect.volume = 0.1;
+        soundError.volume = 0.1;
+        soundWin.volume = 0.8;
+
+        function playSound(audio) {
+            audio.currentTime = 0;
+            audio.play();
+        }
+
+        const emojis = [
+            '🍎', '🍌', '🍇', '🍓', '🍊', '🥝',
+            '🍍', '🥥', '🍒', '🍉', '🍐', '🍑'
+        ];
+        const shuffled = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+        const gameBoard = document.getElementById('gameBoard');
+        const timerDisplay = document.getElementById('timer');
+
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = true;
+        let matchedCount = 0;
+        let startTime = 0;
+        let timerInterval = null;
+
+        function startTimer() {
+            startTime = performance.now();
+            timerInterval = setInterval(() => {
+                const elapsed = (performance.now() - startTime) / 1000;
+                timerDisplay.textContent = `${elapsed.toFixed(2)}초`;
+            }, 10);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function createCard(emoji, index) {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.emoji = emoji;
+            card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-front">${emoji}</div>
+          <div class="card-back">${index + 1}</div>
+        </div>
+      `;
+            return card;
+        }
+
+        shuffled.forEach((emoji, idx) => {
+            const card = createCard(emoji, idx);
+            gameBoard.appendChild(card);
+        });
+
+        const allCards = document.querySelectorAll('.card');
+
+        async function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function sequentialRevealAndHide() {
+            for (let i = 0; i < allCards.length; i++) {
+                allCards[i].classList.add('flipped');
+                playSound(soundFlip);
+                await delay(80);
+            }
+
+            await delay(1000);
+
+            for (let i = 0; i < allCards.length; i++) {
+                allCards[i].classList.remove('flipped');
+                playSound(soundFlip);
+                await delay(80);
+            }
+
+            lockBoard = false;
+            startTimer();
+        }
+
+        // sequentialRevealAndHide();
+
+        allCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (lockBoard || card.classList.contains('flipped')) return;
+
+                card.classList.add('flipped');
+                playSound(soundFlip);
+
+                if (!firstCard) {
+                    firstCard = card;
+                } else {
+                    secondCard = card;
+                    lockBoard = true;
+
+                    if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+                        playSound(soundCorrect);
+                        matchedCount++;
+                        firstCard = null;
+                        secondCard = null;
+                        lockBoard = false;
+
+                        if (matchedCount === emojis.length) {
+                            stopTimer();
+                            playSound(soundWin);
+                            const time = parseFloat(timerDisplay.textContent.replace("초", ""));
+
+                            setTimeout(() => {
+                                const playerName = prompt(
+                                    `🎉 모두 맞췄습니다!\n기록: ${time.toFixed(2)}초\n이름을 입력해주세요 (10자 이내):`,
+                                    "홍길동");
+                                if (playerName) {
+                                    const newRecord = {
+                                        name: playerName.slice(0, 10),
+                                        time: time
+                                    };
+                                    const records = JSON.parse(localStorage.getItem(
+                                        "memoryGameRecords") || "[]");
+                                    records.push(newRecord);
+                                    localStorage.setItem("memoryGameRecords", JSON.stringify(
+                                        records));
+                                    location.href = "ranking.html";
+                                }
+                            }, 300);
+                        }
+                    } else {
+                        playSound(soundError);
+                        setTimeout(() => {
+                            firstCard.classList.remove('flipped');
+                            secondCard.classList.remove('flipped');
+                            playSound(soundFlip);
+                            firstCard = null;
+                            secondCard = null;
+                            lockBoard = false;
+                        }, 1000);
+                    }
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // 초기 상태: 카드 클릭 비활성화
+            allCards.forEach(card => card.style.pointerEvents = "none");
+
+            // 시작 버튼 이벤트 연결
+            document.getElementById("startGameBtn").addEventListener("click", () => {
+                document.getElementById("startGameBtn").style.display = "none";
+                document.getElementById("restartGameBtn").style.display = "inline-block";
+                allCards.forEach(card => card.style.pointerEvents = "auto");
+                sequentialRevealAndHide();
+            });
+        });
+    </script>
+</body>
+
+</html>

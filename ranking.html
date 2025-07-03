@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>기억력 게임 랭킹</title>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: #f5f5f5;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 1.2em;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        th,
+        td {
+            border: 1px solid #888;
+            padding: 10px;
+        }
+
+        th {
+            background: #444;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #eee;
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            background: #444;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🏆 기억력 게임 랭킹 TOP 20</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>순위</th>
+                <th>이름</th>
+                <th>기록(초)</th>
+            </tr>
+        </thead>
+        <tbody id="rankingBody"></tbody>
+    </table>
+
+    <button onclick="location.href='memoryGame3.html'">🔙 다시 게임하기</button>
+    <button onclick="resetRanking()" style="background: darkred; margin-left: 10px;">🧹 랭킹 초기화</button>
+
+    <script>
+        const tbody = document.getElementById("rankingBody");
+        let records = JSON.parse(localStorage.getItem("memoryGameRecords") || "[]");
+
+        records.sort((a, b) => a.time - b.time);
+        records.slice(0, 20).forEach((rec, i) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${i + 1}</td><td>${rec.name}</td><td>${rec.time.toFixed(2)}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        function resetRanking() {
+            const password = prompt("랭킹을 초기화하려면 비밀번호를 입력하세요:");
+            if (password === "1320") {
+                localStorage.removeItem("memoryGameRecords");
+                alert("✅ 랭킹이 초기화되었습니다.");
+                location.reload();
+            } else if (password !== null) {
+                alert("❌ 비밀번호가 틀렸습니다.");
+            }
+        }
+    </script>
+</body>
+
+</html>
