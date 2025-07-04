@@ -182,9 +182,11 @@
       <div class="phone-wrapper">
         <div class="fixed-text">010</div>
         <span>-</span>
-        <input type="text" maxlength="4" pattern="\d*" inputmode="numeric" />
+        <input type="text" id="studentPhone1" maxlength="4"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" />
         <span>-</span>
-        <input type="text" maxlength="4" pattern="\d*" inputmode="numeric" />
+        <input type="text" id="studentPhone2" maxlength="4"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" />
       </div>
     </div>
     <button id="btnStartGameStudent">뽑기 시작!</button>
@@ -214,16 +216,18 @@
     <div class="form-group">
       <div class="row-label">이름</div>
       <input type="text" id="middleName" />
-    </div>    
+    </div>
 
     <div class="form-group">
       <div class="row-label">전화번호</div>
       <div class="phone-wrapper">
         <div class="fixed-text">010</div>
         <span>-</span>
-        <input type="text" maxlength="4" pattern="\d*" inputmode="numeric" />
+        <input type="text" id="middlePhone1" maxlength="4"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" />
         <span>-</span>
-        <input type="text" maxlength="4" pattern="\d*" inputmode="numeric" />
+        <input type="text" id="middlePhone2" maxlength="4"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" />
       </div>
     </div>
     <button id="btnStartGameMiddle">뽑기 시작!</button>
@@ -425,7 +429,7 @@
                 </div>`;
             box.dataset.prize = prize;
 
-            box.addEventListener('click', function() {
+            box.addEventListener('click', function () {
               if (box.classList.contains('flipped') || isLocked) return;
               isLocked = true;
 
@@ -462,16 +466,55 @@
           "운도 실력이죠!\n이번엔 꽝~"
         ];
 
-        // --- 이 부분이 수정되었습니다 ---
-        closeBtn.addEventListener('click', function() {
+        closeBtn.addEventListener('click', function () {
           popup.style.display = 'none';
           isLocked = false;
+
+          const allBoxes = document.querySelectorAll('#grid .box');
+          const allFlipped = Array.from(allBoxes).every(box => box.classList.contains('flipped'));
+
+          if (allFlipped) {
+            alert('모든 뽑기를 완료했습니다. 뽑기판을 초기화합니다!');
+            // grid 초기화
+            grid.innerHTML = '';
+            shuffle(prizePool);
+            prizePool.forEach(prize => {
+              const box = document.createElement('div');
+              box.className = 'box';
+              box.innerHTML = `
+          <div class="flip-inner">
+            <div class="flip-front">🎁</div>
+            <div class="flip-back ${prize === '꽝' ? 'loser' : 'winner'}">${prize}</div>
+          </div>`;
+              box.dataset.prize = prize;
+
+              box.addEventListener('click', function () {
+                if (box.classList.contains('flipped') || isLocked) return;
+                isLocked = true;
+
+                const sound = prize === '꽝' ? soundLose : soundWin;
+                sound.currentTime = 0;
+                sound.play();
+
+                box.classList.add('flipped');
+
+                setTimeout(() => {
+                  const messageSet = prize === '꽝' ? loseMessages : winMessages;
+                  const msgTemplate = messageSet[Math.floor(Math.random() * messageSet.length)];
+                  const msg = msgTemplate.replace('{prize}', prize);
+
+                  resultText.innerText = msg;
+                  popup.style.display = 'block';
+                }, 700);
+              });
+
+              grid.appendChild(box);
+            });
+          }
+
           document.getElementById('gameScreen').style.display = 'none';
-          // startScreen을 명확히 flex로 설정하여 보이게 합니다.
           document.getElementById('startScreen').style.display = 'flex';
-          // classList.add('active')는 더 이상 필요 없습니다.
         });
-        // --- 수정 끝 ---
       </script>
     </body>
 
@@ -522,7 +565,7 @@
         const p1 = document.getElementById('studentPhone1').value;
         const p2 = document.getElementById('studentPhone2').value;
 
-        if (!grade || !cls || !num || !p1 || !p2) {
+        if (!grade || !cls || !num || !name || !p1 || !p2) {
           alert('모든 재학생 항목을 입력해주세요.');
           return;
         }
@@ -545,7 +588,7 @@
         const p1 = document.getElementById('middlePhone1').value;
         const p2 = document.getElementById('middlePhone2').value;
 
-        if (!sch || !cls || !num || !p1 || !p2) {
+        if (!sch || !cls || !num || !name || !p1 || !p2) {
           alert('모든 중학생 항목을 입력해주세요.');
           return;
         }
