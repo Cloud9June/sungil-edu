@@ -169,7 +169,7 @@
 
     <div class="form-group">
       <div class="row-label">번호</div>
-      <input type="number" id="studentNumber" min="1" max="99" />
+      <input type="number" id="studentNumber" min="1" max="30" />
     </div>
 
     <div class="form-group">
@@ -566,7 +566,7 @@
       }
 
       try {
-        const docRef = await addDoc(collection(db, "entries"), dataToSave);
+        const docRef = await addDoc(collection(db, "students"), dataToSave);
         console.log("Document written with ID: ", docRef.id);
       } catch (error) {
         console.error("Error adding document: ", error);
