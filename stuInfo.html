@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실시간 학생 목록</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // ✅ Firebase 설정 - 아래 정보는 본인 프로젝트에 맞게 바꾸세요!
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdfwOeE3nsi1zT2swvti7okFhCwdWyOhU",
+      authDomain: "lotterystudentdata.firebaseapp.com",
+      projectId: "lotterystudentdata",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const table = document.getElementById("dataTable");
+
+    // 실시간 데이터 수신
+    onSnapshot(collection(db, "students"), (snapshot) => {
+      // 테이블 초기화
+      table.innerHTML = "";
+
+      // 테이블 헤더
+      const headerRow = document.createElement("tr");
+      headerRow.innerHTML = `
+        <th>학교</th>
+        <th>학년</th>
+        <th>반</th>
+        <th>번호</th>
+        <th>이름</th>
+        <th>전화번호</th>
+        <th>작성일</th>
+      `;
+      table.appendChild(headerRow);
+
+      // 데이터 출력
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        const dateStr = data.timestamp?.toDate
+            ? data.timestamp.toDate().toLocaleString()  // Timestamp 객체일 경우
+            : data.timestamp || "";                     // 문자열일 경우 그대로 출력
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.school || ""}</td>
+          <td>${data.grade || ""}</td>
+          <td>${data.class || ""}</td>
+          <td>${data.number || ""}</td>
+          <td>${data.name || ""}</td>
+          <td>${data.phone || ""}</td>
+          <td>${dateStr}</td>
+        `;
+        table.appendChild(row);
+      });
+    });
+  </script>
+
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      padding: 40px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    th {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>실시간 학생 목록</h1>
+  <table id="dataTable"></table>
+</body>
+</html>
