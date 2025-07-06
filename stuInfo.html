@@ -5,22 +5,36 @@
   <title>실시간 학생 목록</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    // ✅ Firebase 설정 - 아래 정보는 본인 프로젝트에 맞게 바꾸세요!
+    // ✅ Firebase 설정 (아래 값들을 본인 프로젝트에 맞게 수정)
     const firebaseConfig = {
       apiKey: "AIzaSyAdfwOeE3nsi1zT2swvti7okFhCwdWyOhU",
       authDomain: "lotterystudentdata.firebaseapp.com",
       projectId: "lotterystudentdata",
     };
 
+    // Firebase 초기화
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const table = document.getElementById("dataTable");
 
+    // ✅ 정렬된 쿼리: 학년 → 반 → 번호 순
+    const q = query(
+      collection(db, "students"),
+      orderBy("grade"),
+      orderBy("class"),
+      orderBy("number")
+    );
+
     // 실시간 데이터 수신
-    onSnapshot(collection(db, "students"), (snapshot) => {
-      // 테이블 초기화
+    onSnapshot(q, (snapshot) => {
       table.innerHTML = "";
 
       // 테이블 헤더
@@ -36,14 +50,18 @@
       `;
       table.appendChild(headerRow);
 
-      // 데이터 출력
       snapshot.forEach(doc => {
         const data = doc.data();
 
-        const dateStr = data.timestamp?.toDate
-            ? data.timestamp.toDate().toLocaleString()  // Timestamp 객체일 경우
-            : data.timestamp || "";                     // 문자열일 경우 그대로 출력
+        // ✅ timestamp 처리 (객체 or 문자열 모두 지원)
+        let dateStr = "";
+        if (data.timestamp?.toDate) {
+          dateStr = data.timestamp.toDate().toLocaleString();  // Timestamp 객체
+        } else if (typeof data.timestamp === "string") {
+          dateStr = data.timestamp;
+        }
 
+        // 데이터 행 추가
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${data.school || ""}</td>
