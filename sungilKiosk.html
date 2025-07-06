@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&family=Single+Day&display=swap');
+
         * {
             box-sizing: border-box;
         }
@@ -171,6 +172,47 @@
                 padding: 18px;
             }
         }
+
+        .menu-button {
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        /* 선 스타일 */
+        .bar {
+            position: absolute;
+            display: block;
+            z-index: 1;
+        }
+
+        .top {
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+        }
+
+        .right {
+            top: 0;
+            right: 0;
+            width: 3px;
+            height: 0;
+        }
+
+        .bottom {
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+        }
+
+        .left {
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 0;
+        }
     </style>
 </head>
 
@@ -189,13 +231,96 @@
         <span class="icon wiggle">⚾️</span>숫자 야구 게임
     </button>
 
-    <button class="menu-button delay-3" onclick="location.href='https://cloud9june.github.io/sungil-edu/memoryGame3.html'">
+    <button class="menu-button delay-3"
+        onclick="location.href='https://cloud9june.github.io/sungil-edu/memoryGame3.html'">
         <span class="icon bounce">🍏</span>과일 맞추기 게임
     </button>
 
     <button class="menu-button delay-4" onclick="location.href='https://cloud9june.github.io/sungil-edu/lottery6.html'">
         <span class="icon wiggle">🎁</span>[이벤트] 추억의 뽑기
     </button>
+
+    <script>
+        const colors = ['yellow', 'blue', 'red'];
+        let colorIndex = 0;
+
+        function createBar(className, color, parent) {
+            const bar = document.createElement('div');
+            bar.className = `bar ${className}`;
+            bar.style.backgroundColor = color;
+            parent.appendChild(bar);
+            return bar;
+        }
+
+        function animateBorder(button) {
+            const color = colors[colorIndex % colors.length];
+            colorIndex++;
+
+            const w = button.offsetWidth;
+            const h = button.offsetHeight;
+
+            const top = createBar('top', color, button);
+            top.animate([{
+                    width: '0'
+                }, {
+                    width: `${w}px`
+                }], {
+                    duration: 600,
+                    fill: 'forwards'
+                }).finished
+                .then(() => {
+                    // 오른쪽
+                    const right = createBar('right', color, button);
+                    right.animate([{
+                            height: '0'
+                        }, {
+                            height: `${h}px`
+                        }], {
+                            duration: 600,
+                            fill: 'forwards'
+                        }).finished
+                        .then(() => {
+                            // 하단 (오른쪽 → 왼쪽)
+                            const bottom = createBar('bottom', color, button);
+                            bottom.style.left = 'auto';
+                            bottom.style.right = '0';
+                            bottom.animate([{
+                                width: '0'
+                            }, {
+                                width: `${w}px`
+                            }], {
+                                duration: 600,
+                                fill: 'forwards'
+                            }).finished.then(() => {
+                                // 왼쪽 (아래 → 위)
+                                const left = createBar('left', color, button);
+                                left.style.top = 'auto';
+                                left.style.bottom = '0';
+                                left.animate([{
+                                    height: '0'
+                                }, {
+                                    height: `${h}px`
+                                }], {
+                                    duration: 600,
+                                    fill: 'forwards'
+                                }).finished.then(() => {
+                                    // setTimeout(() => animateBorder(button), 300);
+                                    animateBorder(button);
+                                });
+                            });
+                        });
+                });
+        }
+
+        // document.querySelectorAll('.menu-button').forEach((btn, i) => {
+        //     setTimeout(() => animateBorder(btn), i * 600); // 순차적 시작
+        // });
+        document.querySelectorAll('.menu-button').forEach((btn) => {
+          animateBorder(btn); // ✅ 모든 버튼 동시에 시작
+        });
+
+    </script>
+
 </body>
 
 </html>
