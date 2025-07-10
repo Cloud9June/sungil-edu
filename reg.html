@@ -2,198 +2,203 @@
 <html lang="ko">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>방문 등록</title>
-  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>방문 등록</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
 
-    body {
-      font-family: 'Pretendard', sans-serif;
-      background-color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100dvh;
-    }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+        }
 
-    .form-container,
-    .result-container {
-      background-color: white;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      width: 300px;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
+        .form-container,
+        .result-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .form-container.active {
-      display: flex;
-    }
+        .form-container.active {
+            display: flex;
+        }
 
-    h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-    .form-group {
-      width: 100%;
-      max-width: 240px;
-      margin-bottom: 15px;
-    }
+        .form-group {
+            width: 100%;
+            max-width: 240px;
+            margin-bottom: 15px;
+        }
 
-    .row-label {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+        .row-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
 
-    .form-group select,
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
 
-    .phone-wrapper {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      width: 100%;
-    }
+        .phone-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
 
-    .phone-wrapper input {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      text-align: center;
-    }
+        .phone-wrapper input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+        }
 
-    .phone-wrapper .fixed-text {
-      flex: 1;
-      background-color: #eee;
-      color: #555;
-      text-align: center;
-    }
+        .phone-wrapper .fixed-text {
+            flex: 1;
+            background-color: #eee;
+            color: #555;
+            text-align: center;
+        }
 
-    .phone-wrapper span {
-      font-size: 16px;
-      font-weight: bold;
-    }
+        .phone-wrapper span {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-    button {
-      margin-top: 20px;
-      font-size: 18px;
-      padding: 10px 20px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+        button {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
-    .result-container {
-      position: relative;
-      overflow: hidden;
-      min-height: 380px;
-    }
+        .result-container {
+            position: relative;
+            overflow: hidden;
+            height: 440px;
+            /* ✅ 높이 고정 (내용에 맞춰 여유롭게 조절 가능) */
+            width: 300px;
+            /* 필요 시 추가 */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .result-container.active {
-      display: flex;
-      animation: fadeIn 1s ease-in-out;
-      background: linear-gradient(135deg, #fceabb, #f8b500);
-      color: #333;
-      border: 3px solid white;
-      box-shadow: 0 0 30px rgba(255, 193, 7, 0.6);
-      background-image: url('images/logo2.png');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-color: #fff;
-      background-size: 80; /* ✅ 박스 전체 채우기 */
-      background-blend-mode: lighten;
-    }
+        .result-container.active {
+            display: flex;
+            animation: fadeIn 1s ease-in-out;
+            color: #333;
+            border: 3px solid white;
+            box-shadow: 0 0 30px rgba(255, 193, 7, 0.6);
 
-    .result-text {
-      position: relative;
-      z-index: 2;
-      font-size: 20px;
-      line-height: 1.6;
-      text-align: center;
-      white-space: pre-wrap;
-      padding: 10px;
-    }
+            background:
+                url('images/logo2.png') center/80% no-repeat,
+                linear-gradient(135deg, #fceabb, #f8b500);
+        }
 
-    @keyframes fadeIn {
-      0% {
-        transform: scale(0.8);
-        opacity: 0;
-      }
+        .result-text {
+            position: relative;
+            z-index: 2;
+            font-size: 20px;
+            line-height: 1.6;
+            text-align: center;
+            white-space: pre-wrap;
+            padding: 10px;
+        }
 
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-  </style>
+        @keyframes fadeIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div id="formScreen" class="form-container active">
-    <h1>방문 등록</h1>
-    <div class="form-group">
-      <div class="row-label">학교</div>
-      <select id="middleSchool">
-        <option value="">선택</option>
-      </select>
+    <div id="formScreen" class="form-container active">
+        <h1>방문 등록</h1>
+        <div class="form-group">
+            <div class="row-label">학교</div>
+            <select id="middleSchool">
+                <option value="">선택</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div class="row-label">반</div>
+            <select id="middleClass"></select>
+        </div>
+        <div class="form-group">
+            <div class="row-label">번호</div>
+            <input type="number" id="middleNumber" min="1" max="99" />
+        </div>
+        <div class="form-group">
+            <div class="row-label">이름</div>
+            <input type="text" id="middleName" />
+        </div>
+        <div class="form-group">
+            <div class="row-label">전화번호</div>
+            <div class="phone-wrapper">
+                <input type="text" class="fixed-text" value="010" readonly />
+                <span>-</span>
+                <input type="tel" id="middlePhone1" inputmode="numeric" maxlength="4"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
+                <span>-</span>
+                <input type="tel" id="middlePhone2" inputmode="numeric" maxlength="4"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
+            </div>
+        </div>
+        <button onclick="submitForm()">등록</button>
     </div>
-    <div class="form-group">
-      <div class="row-label">반</div>
-      <select id="middleClass"></select>
-    </div>
-    <div class="form-group">
-      <div class="row-label">번호</div>
-      <input type="number" id="middleNumber" min="1" max="99" />
-    </div>
-    <div class="form-group">
-      <div class="row-label">이름</div>
-      <input type="text" id="middleName" />
-    </div>
-    <div class="form-group">
-      <div class="row-label">전화번호</div>
-      <div class="phone-wrapper">
-        <input type="text" class="fixed-text" value="010" readonly />
-        <span>-</span>
-        <input type="tel" id="middlePhone1" inputmode="numeric" maxlength="4"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
-        <span>-</span>
-        <input type="tel" id="middlePhone2" inputmode="numeric" maxlength="4"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
-      </div>
-    </div>
-    <button onclick="submitForm()">등록</button>
-  </div>
 
-  <div id="resultScreen" class="result-container">
-    <div class="result-text" id="resultText"></div>
-  </div>
+    <div id="resultScreen" class="result-container">
+        <div class="result-text" id="resultText"></div>
+    </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -270,12 +275,15 @@
           `🍀 오늘 운세, 당신에게 달렸다!`;
 
         let i = 0;
+        document.getElementById('resultText').innerText = ''; // 초기화
+
+        // ✅ 배경은 이미 보이는 상태, 텍스트만 타이핑 효과
         const typingInterval = setInterval(() => {
-          document.getElementById('resultText').innerText += fullMessage.charAt(i);
+        document.getElementById('resultText').innerText += fullMessage.charAt(i);
           i++;
-          if (i >= fullMessage.length) {
+        if (i >= fullMessage.length) {
             clearInterval(typingInterval);
-          }
+        }
         }, 50);
 
       } catch (e) {
