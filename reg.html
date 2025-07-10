@@ -169,7 +169,8 @@
     </div>
     <div class="form-group">
       <div class="row-label">번호</div>
-      <input type="number" id="middleNumber" min="1" max="99" />
+      <input type="tel" id="middleNumber" inputmode="numeric" maxlength="2"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,2)" />
     </div>
     <div class="form-group">
       <div class="row-label">이름</div>
