@@ -7,15 +7,20 @@
   <title>방문 등록</title>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
     body {
       font-family: 'Pretendard', sans-serif;
       background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100dvh;
+      min-height: 100dvh;
     }
 
     .form-container,
@@ -52,8 +57,7 @@
     }
 
     .form-group select,
-    .form-group input[type="text"],
-    .form-group input[type="number"] {
+    .form-group input {
       width: 100%;
       padding: 10px;
       font-size: 16px;
@@ -84,6 +88,7 @@
       flex: 1;
       background-color: #eee;
       color: #555;
+      text-align: center;
     }
 
     .phone-wrapper span {
@@ -105,7 +110,7 @@
     .result-container {
       position: relative;
       overflow: hidden;
-      min-height: 360px; /* ✅ 상자 크기 고정 */
+      min-height: 380px;
     }
 
     .result-container.active {
@@ -115,11 +120,10 @@
       color: #333;
       border: 3px solid white;
       box-shadow: 0 0 30px rgba(255, 193, 7, 0.6);
-
       background-image: url('images/logo2.png');
       background-repeat: no-repeat;
       background-position: center;
-      background-size: cover;
+      background-size: cover; /* ✅ 박스 전체 채우기 */
       background-blend-mode: lighten;
     }
 
@@ -173,9 +177,11 @@
       <div class="phone-wrapper">
         <input type="text" class="fixed-text" value="010" readonly />
         <span>-</span>
-        <input type="text" id="middlePhone1" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
+        <input type="tel" id="middlePhone1" inputmode="numeric" maxlength="4"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
         <span>-</span>
-        <input type="text" id="middlePhone2" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
+        <input type="tel" id="middlePhone2" inputmode="numeric" maxlength="4"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" />
       </div>
     </div>
     <button onclick="submitForm()">등록</button>
@@ -251,17 +257,16 @@
         document.getElementById('resultScreen').classList.add('active');
 
         const fullMessage =
-            `🎉✨🎈🎊\n\n` +
-            `${school}\n` +
-            `3학년 ${cls}반\n` +
-            `${name} 학생\n\n` +
-            `성일정보고등학교\n` +
-            `방문을 진심으로\n` +
-            `환영합니다!\n` +
-            `🙌🎓👏✨\n\n` +
-            `📸 이 화면 인증하고 뽑기 GO!\n` +
-            `🍀 오늘 운세, 당신에게 달렸다!`;
-
+          `🎉✨🎈🎊\n\n` +
+          `${school}\n` +
+          `3학년 ${cls}반\n` +
+          `${name} 학생\n\n` +
+          `성일정보고등학교\n` +
+          `방문을 진심으로\n` +
+          `환영합니다!\n` +
+          `🙌🎓👏✨\n\n` +
+          `📸 이 화면 인증하고 뽑기 GO!\n` +
+          `🍀 오늘 운세, 당신에게 달렸다!`;
 
         let i = 0;
         const typingInterval = setInterval(() => {
