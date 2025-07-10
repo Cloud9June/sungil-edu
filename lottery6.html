@@ -151,9 +151,13 @@
       position: fixed;
       font-size: 14px;
       padding: 14px 28px;
-      bottom: 40px;
       background-color: #444;
       color: #fff;
+      border-radius: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); /* 안전 영역 + 여유 */
+      z-index: 999;
     }
 
     /* START 버튼의 애니메이션 정의 */
@@ -729,7 +733,7 @@
           document.getElementById('studentForm').style.display = 'none';
           document.getElementById('middleForm').style.display = 'flex';
           resetFormFields('middleForm');
-          document.getElementById('middleSchool').value = '성일중학교';
+          document.getElementById('middleSchool').value = '태평중학교';
         });
       }
 
